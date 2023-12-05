@@ -25,6 +25,7 @@ public class UserService : IUserService
             data.password, salt
         );
         user.Name = data.Name;
+        user.Salt = salt;
 
         this.ctx.Add(user);
         await this.ctx.SaveChangesAsync();
