@@ -21,7 +21,7 @@ public class UserController : ControllerBase
         var loggedUser = await service.GetByLogin(user.login);
 
         if(loggedUser == null)
-            return Unauthorized("Usuário não existe.");
+            return NotFound(new { message = "Usuário não existe" });
 
         var password = await security.HashPassword(
             user.password, loggedUser.Salt
@@ -29,7 +29,7 @@ public class UserController : ControllerBase
         var realPassword = loggedUser.Password;
 
         if(password != realPassword)
-            return Unauthorized("Senha Incorreta.");
+            return Unauthorized(new { message = "Senha Incorreta." });
         var jwt = await security.GenerateJwt(new {
             id = loggedUser.Id
         });
