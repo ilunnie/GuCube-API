@@ -34,7 +34,7 @@ public class UserController : ControllerBase
             id = loggedUser.Id
         });
 
-        return Ok(jwt);
+        return Ok(new { token = jwt });
     }
 
     [HttpPost("signup")]
@@ -56,7 +56,20 @@ public class UserController : ControllerBase
         if (errors.Count > 0)
             return BadRequest(errors);
 
-        await service.Create(user);
+        await service.Create(user!);
         return Ok();
+    }
+
+    [HttpPost("managed")]
+    [EnableCors("DefaultPolicy")]
+    public async Task<IActionResult> GetManaged(
+        [FromBody]JwtData jwt,
+        [FromServices]IUserService service,
+        [FromServices]ISecurityService security
+    )
+    {
+        var jwtPayload = await security.ValidadeJwt<JwtPayload>(jwt.token);
+        var stores = await service.GetManaged(jwtPayload.id);
+        return Ok(stores);
     }
 }

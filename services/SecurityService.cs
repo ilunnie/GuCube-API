@@ -43,16 +43,16 @@ public class SecurityService : ISecurityService
         var base64Password = ToBase64(password);
 
         var generatedSignature = getSignature(header, payload, base64Password);
-        if (generatedSignature != signature)
+        if ((string)generatedSignature != signature)
         {
-            return default(T);
+            return default(T)!;
         }
 
         var payloadBytes = Convert.FromBase64String(payload);
         var payloadJson = Encoding.UTF8.GetString(payloadBytes);
-
+        
         var obj = JsonSerializer.Deserialize<T>(payloadJson);
-        return obj;
+        return obj!;
     }
 
     private byte[] getRandomArray()
@@ -96,8 +96,7 @@ public class SecurityService : ISecurityService
     {
         var bytes = Encoding.UTF8.GetBytes(text);
         var base64 = Convert.ToBase64String(bytes);
-        var base64withoutPadding = base64.Replace("=", "");
-        return base64withoutPadding;
+        return base64;
     }
 
     private string getJwt<T>(T obj, string password)
@@ -145,7 +144,6 @@ public class SecurityService : ISecurityService
         using var algorithm = new HMACSHA256(passwordBytes);
         var signatureBytes = algorithm.ComputeHash(contentBytes);
         var signature = Convert.ToBase64String(signatureBytes);
-        signature = signature.Replace("=", "");
 
         return signature;
     }
